@@ -1,10 +1,12 @@
 # Crunch Game Design Documentation
 
+> **⚠️ DESIGN DOCUMENTATION ONLY**  
+> This repository contains **design documentation and technical specifications only**. It specifies the technical approach and algorithms for the Crunch game concept but does **not** include a working implementation.  
+> For actual implementation, please refer to a separate code repository.
+
 This repository contains design documentation and technical specifications for the **Crunch** game concept - a CLI game that generates random math problems guaranteed to never repeat until all possible questions are exhausted.
 
 ## 📋 Repository Purpose
-
-⚠️ **NOTE**: This repository contains **design documentation only**. It specifies the technical approach and algorithms for the Crunch game but does not include a working implementation.
 
 The documentation covers:
 - Feistel format-preserving cipher for non-repeating question sequences
