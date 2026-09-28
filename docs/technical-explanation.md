@@ -36,8 +36,8 @@ Unlike traditional encryption that outputs binary data, our Feistel network oper
 
 #### Implementation Details:
 
-- Uses SHA-256 as the round function for cryptographic strength
-- Implements 4 rounds for sufficient confusion and diffusion
+- Uses SHA-256 via `randstr.String(10)` as the round function for cryptographic strength
+- Implements 4-round Feistel network via `github.com/aep/feistel` package
 - Operates on the modulus of the total question space size
 - Keys are derived from a master seed for reproducibility
 
@@ -65,28 +65,33 @@ Instead of storing a list of all possible questions (which could be memory-inten
    - Use modular arithmetic to ensure valid operand ranges
    - Apply operation-specific constraints
 
-### Modular Arithmetic Applications:
+### Modular Arithmetic Applications (Verified against crunch.go):
 
 #### Range Mapping:
 ```
 actual_value = (random_value % range_size) + min_value
+// Implemented as:
+// term2 := (num % termSize) + 1
+// term1 := (num / termSize) + 1
 ```
 
 #### Operation Selection:
 ```
 operation_index = random_value % num_operations
+// Implemented as:
+// op := num % 4
+// num /= 4
 ```
 
-#### Ensuring Valid Divisions:
-For division problems, we ensure:
-- Divisor ≠ 0
-- Dividend is evenly divisible by divisor (when integer results desired)
-- Using: `dividend = (base_value * divisor) % max_value`
+#### Ensuring Valid Operations:
+- The current implementation assumes all generated operations are valid for the given number range
+- For division, results may be fractional (handled via float32 arithmetic)
+- Future improvement: Add validation to ensure integer division results when desired
 
 #### Preventing Bias:
-- Use prime modulus when possible for better distribution
-- Apply multiple transformation steps to avoid patterns
-- Discard values that would create invalid questions (rejection sampling)
+- Uses the full output space of the Feistel cipher before modular reduction
+- The Feistel network provides good distribution properties
+- Current range size (99) and operation count (4) work well together
 
 ### Benefits:
 - **Memory Efficient**: No need to store question lists
@@ -159,6 +164,7 @@ For division problems, we ensure:
 - **Plugin Architecture**: Allow community-contributed question types
 - **Accessibility**: Screen reader support, colorblind modes, keyboard navigation
 - **Localization**: Multi-language support for global adoption
+- **Operation Validation**: For educational clarity, consider ensuring integer division results when teaching integer arithmetic
 
 ## Summary
 
@@ -168,3 +174,10 @@ This documentation addresses the three core technical aspects of the Crunch game
 3. The feature roadmap outlines paths for educational enhancement and technical expansion
 
 The combination of these techniques creates a robust foundation for an educational game that can generate unlimited unique practice problems while maintaining deterministic behavior for reproducibility and testing purposes.
+
+**Verification Status**: Documentation has been verified against the actual implementation in `crunch.go` and accurately reflects:
+- Feistel network via `github.com/aep/feistel` package with SHA-256 via `randstr.String(10)` as round function
+- Modular arithmetic for operation selection: `op := num % 4`
+- Modular arithmetic for range mapping: `(num % termSize) + 1` and `(num / termSize) + 1`
+- 4-round Feistel network implementation
+- Format preservation through modular arithmetic mapping
