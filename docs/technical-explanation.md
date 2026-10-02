@@ -41,7 +41,44 @@ Unlike traditional encryption that outputs binary data, our Feistel network oper
 - Operates on the modulus of the total question space size
 - Keys are derived from a master seed for reproducibility
 
-## 2. Modular Arithmetic for Math Question Generation
+### Alternative: ARX-Based Feistel Network
+
+As noted in issue #9, an ARX (Add-Rotate-XOR) based Feistel network could replace the current SHA-256 dependent implementation. ARX designs offer several potential advantages:
+
+#### ARX Principles:
+- **Addition**: Modular addition (typically 32-bit or 64-bit)
+- **Rotation**: Bitwise rotations (fixed or variable amounts)
+- **XOR**: Exclusive OR operations
+- **No Lookup Tables**: ARX designs are resistant to timing attacks and cache-based side channels
+
+#### Potential ARX Round Function:
+Instead of using SHA-256, an ARX round function could use a combination of:
+```go
+func arxRound(x, key uint32) uint32 {
+    // Example ARX-inspired round function
+    x += key
+    x = (x << 13) | (x >> (32 - 13))  // rotate left 13
+    x ^= key
+    x += 0x9e3779b9  // golden ratio constant
+    x = (x << 7) | (x >> (32 - 7))   // rotate left 7
+    return x
+}
+```
+
+#### Benefits of ARX Approach:
+- **Reduced Dependencies**: Eliminates need for external cryptographic hash package
+- **Performance**: Typically faster than hash-based round functions
+- **Constant Time**: Inherently resistant to timing attacks
+- **Simplicity**: Simpler to audit and verify
+- **Deterministic**: Same cryptographic properties as current implementation
+
+#### Implementation Considerations:
+- Would maintain the same Feistel structure (4 rounds, same key schedule)
+- Key derivation would remain unchanged
+- Output distribution properties would need verification
+- Would maintain format-preserving characteristics
+
+### 2. Modular Arithmetic for Math Question Generation
 
 The game leverages modular arithmetic to transform pseudo-random numbers into valid, non-repeating math questions.
 
@@ -181,3 +218,5 @@ The combination of these techniques creates a robust foundation for an education
 - Modular arithmetic for range mapping: `(num % termSize) + 1` and `(num / termSize) + 1`
 - 4-round Feistel network implementation
 - Format preservation through modular arithmetic mapping
+
+**ARX Alternative**: As requested in issue #9, documentation has been added describing how an ARX (Add-Rotate-XOR) based Feistel network could serve as a potential alternative to the current hash-dependent implementation, offering benefits in terms of reduced dependencies, performance, and side-channel resistance while maintaining the same cryptographic properties and format-preserving characteristics.
